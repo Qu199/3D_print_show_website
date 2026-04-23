@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D 手办首页展示</title>
+  <style>
+    :root {
+      --bg1: #f7f7f8;
+      --bg2: #eceef2;
+      --text: #111827;
+      --muted: rgba(17, 24, 39, 0.68);
+      --panel: rgba(255, 255, 255, 0.75);
+      --border: rgba(17, 24, 39, 0.08);
+      --shadow: 0 18px 60px rgba(15, 23, 42, 0.08);
+      --accent: #111827;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, #ffffff 0%, var(--bg1) 42%, var(--bg2) 100%);
+    }
+
+    body {
+      position: relative;
+    }
+
+    #viewer {
+      position: fixed;
+      inset: 0;
+      outline: none;
+    }
+
+    .hero {
+      position: fixed;
+      left: 28px;
+      top: 26px;
+      z-index: 10;
+      width: min(460px, calc(100vw - 32px));
+      padding: 22px 24px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 28px;
+      height: 1px;
+      background: currentColor;
+      opacity: .6;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(24px, 4vw, 42px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .desc {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--muted);
+    }
+
+    .toolbar {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 11;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      width: min(680px, calc(100vw - 32px));
+    }
+
+    .chip, .button {
+      appearance: none;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(12px);
+      color: var(--text);
+      box-shadow: var(--shadow);
+    }
+
+    .chip {
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .button {
+      cursor: pointer;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      background: #fff;
+    }
+
+    .button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: rgba(17, 24, 39, 0.18);
+    }
+
+    .status {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%);
+      z-index: 12;
+      min-width: min(720px, calc(100vw - 32px));
+      max-width: min(720px, calc(100vw - 32px));
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      font-size: 13px;
+      line-height: 1.7;
+      color: var(--muted);
+      transition: opacity .25s ease, transform .25s ease, visibility .25s ease;
+    }
+
+    .status.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(8px);
+    }
+
+    .status strong {
+      color: var(--text);
+    }
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: linear-gradient(180deg, rgba(247,247,248,.92), rgba(236,238,242,.94));
+      transition: opacity .25s ease, visibility .25s ease;
+    }
+
+    .loading.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 2px solid rgba(17, 24, 39, 0.1);
+      border-top-color: rgba(17, 24, 39, 0.75);
+      animation: spin .8s linear infinite;
+    }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.75;
+      padding: 0 20px;
+      max-width: 620px;
+      white-space: pre-line;
+    }
+
+    .hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: rgba(17, 24, 39, 0.48);
+    }
+
+    input[type="file"] { display: none; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        left: 16px;
+        top: 16px;
+        padding: 18px 18px;
+        border-radius: 18px;
+      }
+      .toolbar {
+        right: 16px;
+        bottom: 16px;
+        width: calc(100vw - 32px);
+      }
+      .status {
+        bottom: 88px;
+        min-width: calc(100vw - 32px);
+        max-width: calc(100vw - 32px);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .toolbar {
+        justify-content: stretch;
+      }
+      .button, .chip {
+        width: 100%;
+        text-align: center;
+      }
+      .hero {
+        width: calc(100vw - 32px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="viewer" aria-label="3D 模型展示区域"></div>
+
+  <section class="hero">
+    <div class="eyebrow">3D FIGURE SHOWCASE</div>
+    <h1>3D 手办展示首页</h1>
+    <p class="desc">
+      已修复默认模型路径与本地预览提示。支持鼠标拖拽旋转、滚轮缩放、双击上传，
+      也支持直接替换同目录下的 GLB 文件进行展示。
+    </p>
+  </section>
+
+  <div class="toolbar">
+    <div class="chip">拖拽旋转</div>
+    <div class="chip">滚轮缩放</div>
+    <div class="chip">双击上传 GLB</div>
+    <button id="resetBtn" class="button">重置视角</button>
+    <button id="uploadBtn" class="button primary">选择模型</button>
+  </div>
+
+  <div id="status" class="status hidden"></div>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div id="loadingText" class="loading-text">正在初始化 3D 展示场景…</div>
+    <div class="hint">建议通过本地静态服务器访问，而不是直接双击 HTML。</div>
+  </div>
+
+  <input id="fileInput" type="file" accept=".glb,.gltf" />
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js';
+    import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/loaders/GLTFLoader.js';
+
+    const DEFAULT_MODEL_CANDIDATES = [
+      new URLSearchParams(location.search).get('model'),
+      './1513cc56f904178c5a038c44b576efce%20(1).glb',
+      './1513cc56f904178c5a038c44b576efce (1).glb',
+      './model.glb'
+    ].filter(Boolean);
+
+    const viewer = document.getElementById('viewer');
+    const loading = document.getElementById('loading');
+    const loadingText = document.getElementById('loadingText');
+    const status = document.getElementById('status');
+    const resetBtn = document.getElementById('resetBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    THREE.Cache.enabled = true;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf4f5f7);
+
+    const camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.01, 200);
+    camera.position.set(0, 1.2, 4.6);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    renderer.physicallyCorrectLights = true;
+    viewer.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.enablePan = false;
+    controls.minDistance = 0.8;
+    controls.maxDistance = 12;
+    controls.target.set(0, 1.0, 0);
+    controls.update();
+
+    const ambient = new THREE.HemisphereLight(0xffffff, 0xe6ebf2, 2.2);
+    ambient.position.set(0, 8, 0);
+    scene.add(ambient);
+
+    const key = new THREE.DirectionalLight(0xffffff, 2.4);
+    key.position.set(4, 6, 5);
+    scene.add(key);
+
+    const fill = new THREE.DirectionalLight(0xffffff, 1.1);
+    fill.position.set(-5, 3, 2);
+    scene.add(fill);
+
+    const rim = new THREE.DirectionalLight(0xffffff, 1.1);
+    rim.position.set(0, 4, -5);
+    scene.add(rim);
+
+    const floor = new THREE.Mesh(
+      new THREE.CircleGeometry(5.5, 96),
+      new THREE.MeshBasicMaterial({ color: 0xf0f2f5 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = -0.001;
+    scene.add(floor);
+
+    const root = new THREE.Group();
+    scene.add(root);
+
+    let mixer = null;
+    const clock = new THREE.Clock();
+    let statusTimer = null;
+
+    function setLoading(text) {
+      loadingText.textContent = text;
+      loading.classList.remove('hidden');
+    }
+
+    function hideLoading(delay = 200) {
+      window.setTimeout(() => loading.classList.add('hidden'), delay);
+    }
+
+    function showStatus(html, delay = 5000) {
+      status.innerHTML = html;
+      status.classList.remove('hidden');
+      if (statusTimer) clearTimeout(statusTimer);
+      if (delay > 0) {
+        statusTimer = setTimeout(() => status.classList.add('hidden'), delay);
+      }
+    }
+
+    function hideStatus() {
+      status.classList.add('hidden');
+    }
+
+    function disposeMaterial(material) {
+      if (!material) return;
+      if (Array.isArray(material)) {
+        material.forEach(disposeMaterial);
+        return;
+      }
+      for (const key in material) {
+        const value = material[key];
+        if (value && typeof value === 'object' && 'isTexture' in value) {
+          value.dispose?.();
+        }
+      }
+      material.dispose?.();
+    }
+
+    function clearModel() {
+      mixer = null;
+      while (root.children.length) {
+        const item = root.children[0];
+        item.traverse((obj) => {
+          if (obj.isMesh) {
+            obj.geometry?.dispose?.();
+            disposeMaterial(obj.material);
+          }
+        });
+        root.remove(item);
+      }
+    }
+
+    function applyMaterialFixes(object) {
+      object.traverse((node) => {
+        if (!node.isMesh) return;
+        node.castShadow = false;
+        node.receiveShadow = false;
+        if (Array.isArray(node.material)) {
+          node.material.forEach((mat) => {
+            if (!mat) return;
+            if ('side' in mat) mat.side = THREE.FrontSide;
+          });
+        } else if (node.material && 'side' in node.material) {
+          node.material.side = THREE.FrontSide;
+        }
+      });
+    }
+
+    function frameObject(object) {
+      object.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(object);
+      const size = box.getSize(new THREE.Vector3());
+      const center = box.getCenter(new THREE.Vector3());
+
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const targetSize = 2.3;
+      const scale = targetSize / maxDim;
+      object.scale.multiplyScalar(scale);
+      object.updateMatrixWorld(true);
+
+      const scaledBox = new THREE.Box3().setFromObject(object);
+      const scaledSize = scaledBox.getSize(new THREE.Vector3());
+      const scaledCenter = scaledBox.getCenter(new THREE.Vector3());
+
+      object.position.x -= scaledCenter.x;
+      object.position.y -= scaledBox.min.y;
+      object.position.z -= scaledCenter.z;
+      object.updateMatrixWorld(true);
+
+      const fitHeight = Math.max(1.0, scaledSize.y * 0.55);
+      controls.target.set(0, Math.max(0.65, scaledSize.y * 0.42), 0);
+      controls.minDistance = Math.max(0.8, scaledSize.y * 0.55);
+      controls.maxDistance = Math.max(8, scaledSize.y * 4.2);
+      camera.position.set(0, fitHeight, Math.max(3.2, scaledSize.y * 2.0));
+      camera.lookAt(controls.target);
+      controls.update();
+    }
+
+    async function setModel(object3D, animations = []) {
+      clearModel();
+      applyMaterialFixes(object3D);
+      frameObject(object3D);
+      root.add(object3D);
+
+      if (animations.length) {
+        mixer = new THREE.AnimationMixer(object3D);
+        animations.forEach((clip) => mixer.clipAction(clip).play());
+      }
+
+      hideLoading();
+    }
+
+    function loadGLB(url) {
+      const loader = new GLTFLoader();
+      return new Promise((resolve, reject) => {
+        loader.load(url, resolve, undefined, reject);
+      });
+    }
+
+    async function tryDefaultModels() {
+      const tried = [];
+      for (const url of DEFAULT_MODEL_CANDIDATES) {
+        tried.push(url);
+        try {
+          setLoading('正在加载默认 GLB 模型…');
+          const gltf = await loadGLB(url);
+          await setModel(gltf.scene || gltf.scenes[0], gltf.animations || []);
+          showStatus('<strong>加载成功：</strong> 已自动显示默认 GLB 模型。', 3200);
+          return true;
+        } catch (err) {
+          console.warn('Failed to load candidate:', url, err);
+        }
+      }
+
+      const message = location.protocol === 'file:'
+        ? '<strong>当前是 file:// 方式打开。</strong> 浏览器通常会拦截本地 GLB 读取。请使用本地静态服务器打开，或点击右下角“选择模型”手动导入。'
+        : '<strong>默认模型未加载成功。</strong> 请确认 GLB 文件与 HTML 在同一目录，或将文件命名为 <code>model.glb</code>，也可以通过 <code>?model=你的文件名.glb</code> 指定模型。';
+
+      setLoading('未能自动读取默认模型。');
+      hideLoading(250);
+      showStatus(message, 0);
+      console.warn('Tried model urls:', tried);
+      return false;
+    }
+
+    async function loadLocalFile(file) {
+      if (!file) return;
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (!['glb', 'gltf'].includes(ext)) {
+        showStatus('<strong>格式不支持：</strong> 当前仅保留了 GLB / GLTF 展示逻辑。', 3500);
+        return;
+      }
+
+      const objectUrl = URL.createObjectURL(file);
+      try {
+        setLoading('正在读取本地模型文件…');
+        const gltf = await loadGLB(objectUrl);
+        await setModel(gltf.scene || gltf.scenes[0], gltf.animations || []);
+        showStatus('<strong>已成功导入：</strong> ' + file.name, 3200);
+      } catch (err) {
+        console.error(err);
+        showStatus('<strong>加载失败：</strong> 请确认 GLB 文件完整且未损坏。', 0);
+        setLoading('模型读取失败。');
+        hideLoading(250);
+      } finally {
+        setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+      }
+    }
+
+    function resetView() {
+      controls.target.set(0, 1.0, 0);
+      camera.position.set(0, 1.2, 4.6);
+      camera.lookAt(controls.target);
+      controls.update();
+      showStatus('<strong>视角已重置。</strong>', 1500);
+    }
+
+    function bindEvents() {
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      });
+
+      window.addEventListener('dblclick', () => fileInput.click());
+      uploadBtn.addEventListener('click', () => fileInput.click());
+      resetBtn.addEventListener('click', resetView);
+
+      fileInput.addEventListener('change', async (event) => {
+        const file = event.target.files?.[0];
+        await loadLocalFile(file);
+        event.target.value = '';
+      });
+
+      window.addEventListener('dragover', (event) => event.preventDefault());
+      window.addEventListener('drop', async (event) => {
+        event.preventDefault();
+        const file = event.dataTransfer?.files?.[0];
+        await loadLocalFile(file);
+      });
+
+      renderer.domElement.addEventListener('pointerdown', () => hideStatus());
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      if (mixer) mixer.update(delta);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    async function bootstrap() {
+      bindEvents();
+      animate();
+      await tryDefaultModels();
+    }
+
+    bootstrap();
+  </script>
+</body>
+</html>
