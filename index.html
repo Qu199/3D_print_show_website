@@ -1,178 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D 手办展示</title>
-  <meta name="description" content="3D 手办模型在线展示" />
-  <style>
-    * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(180deg, #f8f8f8 0%, #ececec 100%);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
-      overflow: hidden;
-    }
-    body { position: relative; }
-    .title {
-      position: fixed;
-      top: 24px;
-      left: 24px;
-      z-index: 10;
-      padding: 12px 16px;
-      border-radius: 14px;
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(12px);
-      color: #111827;
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-    }
-    model-viewer {
-      width: 100vw;
-      height: 100vh;
-      --progress-bar-color: transparent;
-      background: transparent;
-    }
-    .loading,
-    .error {
-      position: fixed;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 14px;
-      background: linear-gradient(180deg, rgba(248, 248, 248, 0.96) 0%, rgba(236, 236, 236, 0.98) 100%);
-      z-index: 20;
-      transition: opacity 0.25s ease, visibility 0.25s ease;
-    }
-    .hidden {
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-    }
-    .spinner {
-      width: 38px;
-      height: 38px;
-      border-radius: 50%;
-      border: 2px solid rgba(17, 24, 39, 0.12);
-      border-top-color: rgba(17, 24, 39, 0.78);
-      animation: spin 0.8s linear infinite;
-    }
-    .loading-text,
-    .error-text {
-      padding: 0 20px;
-      text-align: center;
-      color: rgba(17, 24, 39, 0.72);
-      line-height: 1.8;
-      font-size: 14px;
-      white-space: pre-line;
-    }
-    .tips {
-      position: fixed;
-      bottom: 22px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.72);
-      backdrop-filter: blur(12px);
-      color: rgba(17, 24, 39, 0.62);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .error { display: none; }
-    .error.show { display: flex; }
-    .retry {
-      border: none;
-      border-radius: 999px;
-      padding: 10px 16px;
-      background: #111827;
-      color: #fff;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    @media (max-width: 640px) {
-      .title {
-        top: 16px;
-        left: 16px;
-        font-size: 14px;
-      }
-      .tips {
-        bottom: 16px;
-        font-size: 11px;
-        max-width: calc(100vw - 24px);
-        white-space: normal;
-        text-align: center;
-      }
-    }
-  </style>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>3D 手办展示</title>
+    <meta name="description" content="移动端优化的 3D 手办展示页" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <div class="brand">3D FIGURINE</div>
 
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-  <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
-</head>
-<body>
-  <div class="title">3D 手办展示</div>
+      <section class="hero" id="hero">
+        <div class="hero-card">
+          <div class="eyebrow">移动端优化版</div>
+          <h1>3D 手办展示</h1>
+          <p>
+            首屏先展示轻量封面，再根据设备与网络条件决定是否立即加载 3D。
+            这样电脑打开依旧流畅，手机弱网下也不容易超时。
+          </p>
+          <button id="enterButton" class="enter-button">进入 3D 展示</button>
+        </div>
+      </section>
 
-  <model-viewer
-    id="viewer"
-    src="./35ec1b3f8628c4f92bfeb0f1600cca3a.glb"
-    alt="3D 手办模型"
-    camera-controls
-    touch-action="pan-y"
-    interaction-prompt="none"
-    shadow-intensity="1"
-    environment-image="neutral"
-    exposure="1"
-    camera-orbit="0deg 75deg 105%"
-    field-of-view="28deg"
-    min-camera-orbit="auto auto 65%"
-    max-camera-orbit="auto auto 220%"
-  ></model-viewer>
+      <model-viewer
+        id="viewer"
+        alt="3D 手办模型"
+        camera-controls
+        interaction-prompt="none"
+        touch-action="pan-y"
+        shadow-intensity="1"
+        environment-image="neutral"
+        exposure="1"
+        ar-modes="none"
+        loading="lazy"
+        reveal="manual"
+        camera-orbit="0deg 78deg 115%"
+        min-camera-orbit="auto auto 70%"
+        max-camera-orbit="auto auto 220%"
+        field-of-view="28deg"
+        disable-tap
+      >
+        <div slot="poster" class="poster">
+          <div class="poster-inner">
+            <div class="poster-title">点击加载 3D 模型</div>
+            <div class="poster-subtitle">已针对移动端首屏做延迟加载优化</div>
+          </div>
+        </div>
+      </model-viewer>
 
-  <div id="loading" class="loading">
-    <div class="spinner"></div>
-    <div class="loading-text">正在加载 3D 模型…</div>
-  </div>
+      <div class="controls-hint">拖拽旋转 ｜ 双指缩放</div>
 
-  <div id="error" class="error">
-    <div class="error-text">模型加载失败。
-请确认 HTML 文件和 GLB 文件在同一个文件夹中，
-并且当前 GLB 文件名为：
-35ec1b3f8628c4f92bfeb0f1600cca3a.glb</div>
-    <button class="retry" onclick="location.reload()">重新加载</button>
-  </div>
+      <div id="loadingMask" class="loading-mask hidden">
+        <div class="spinner"></div>
+        <div class="loading-text">正在加载 3D 模型…</div>
+      </div>
 
-  <div class="tips">拖拽旋转 ｜ 滚轮缩放</div>
+      <div id="errorMask" class="error-mask hidden">
+        <div class="error-card">
+          <h2>模型加载失败</h2>
+          <p>
+            请确认模型文件已经放在 <code>public/model.glb</code>，
+            并且已经执行过优化脚本。
+          </p>
+          <button id="retryButton" class="retry-button">重试</button>
+        </div>
+      </div>
+    </div>
 
-  <script>
-    const viewer = document.getElementById('viewer');
-    const loading = document.getElementById('loading');
-    const error = document.getElementById('error');
-
-    const hideLoading = () => loading.classList.add('hidden');
-    const showError = () => {
-      hideLoading();
-      error.classList.add('show');
-    };
-
-    viewer.addEventListener('load', hideLoading);
-    viewer.addEventListener('error', showError);
-
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        if (!customElements.get('model-viewer')) {
-          showError();
-        }
-      }, 2500);
-    });
-  </script>
-</body>
+    <script type="module" src="/src/main.js"></script>
+  </body>
 </html>

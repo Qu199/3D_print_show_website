@@ -1,0 +1,21 @@
+{
+  "name": "vercel-3d-figurine-site",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "inspect:model": "gltf-transform inspect public/model-source.glb",
+    "optimize:model": "gltf-transform optimize public/model-source.glb public/model.glb --texture-compress webp",
+    "optimize:model:draco": "gltf-transform optimize public/model-source.glb public/model.glb --compress draco --texture-compress webp"
+  },
+  "dependencies": {
+    "@google/model-viewer": "^4.2.0"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.3.0",
+    "vite": "^7.0.0"
+  }
+}

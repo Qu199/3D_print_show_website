@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>3D 手办展示</title>
+    <meta name="description" content="移动端优化的 3D 手办展示页" />
+    <script type="module" crossorigin src="/assets/index-CrBYHXbu.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BqeF6I8L.css">
+  </head>
+  <body>
+    <div class="shell">
+      <div class="brand">3D FIGURINE</div>
+
+      <section class="hero" id="hero">
+        <div class="hero-card">
+          <div class="eyebrow">移动端优化版</div>
+          <h1>3D 手办展示</h1>
+          <p>
+            首屏先展示轻量封面，再根据设备与网络条件决定是否立即加载 3D。
+            这样电脑打开依旧流畅，手机弱网下也不容易超时。
+          </p>
+          <button id="enterButton" class="enter-button">进入 3D 展示</button>
+        </div>
+      </section>
+
+      <model-viewer
+        id="viewer"
+        alt="3D 手办模型"
+        camera-controls
+        interaction-prompt="none"
+        touch-action="pan-y"
+        shadow-intensity="1"
+        environment-image="neutral"
+        exposure="1"
+        ar-modes="none"
+        loading="lazy"
+        reveal="manual"
+        camera-orbit="0deg 78deg 115%"
+        min-camera-orbit="auto auto 70%"
+        max-camera-orbit="auto auto 220%"
+        field-of-view="28deg"
+        disable-tap
+      >
+        <div slot="poster" class="poster">
+          <div class="poster-inner">
+            <div class="poster-title">点击加载 3D 模型</div>
+            <div class="poster-subtitle">已针对移动端首屏做延迟加载优化</div>
+          </div>
+        </div>
+      </model-viewer>
+
+      <div class="controls-hint">拖拽旋转 ｜ 双指缩放</div>
+
+      <div id="loadingMask" class="loading-mask hidden">
+        <div class="spinner"></div>
+        <div class="loading-text">正在加载 3D 模型…</div>
+      </div>
+
+      <div id="errorMask" class="error-mask hidden">
+        <div class="error-card">
+          <h2>模型加载失败</h2>
+          <p>
+            请确认模型文件已经放在 <code>public/model.glb</code>，
+            并且已经执行过优化脚本。
+          </p>
+          <button id="retryButton" class="retry-button">重试</button>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
