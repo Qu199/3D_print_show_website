@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "node ./node_modules/vite/bin/vite.js",
+    "build": "node ./node_modules/vite/bin/vite.js build",
+    "preview": "node ./node_modules/vite/bin/vite.js preview",
     "inspect:model": "gltf-transform inspect public/model-source.glb",
     "optimize:model": "gltf-transform optimize public/model-source.glb public/model.glb --texture-compress webp",
     "optimize:model:draco": "gltf-transform optimize public/model-source.glb public/model.glb --compress draco --texture-compress webp"
